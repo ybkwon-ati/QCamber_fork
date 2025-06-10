@@ -21,12 +21,4 @@ SOURCES += \
     gui/featurepropertiesdialog.cpp \
     gui/featureshistogramwidget.cpp
 
-FORMS += \
-  gui/jobmatrix.ui \
-  gui/viewerwindow.ui \
-  gui/symbolcount.ui \
-  gui/settingsdialog.ui \
-  gui/layerinfobox.ui \
-  gui/jobmanagerdialog.ui \
-    gui/featurepropertiesdialog.ui \
-    gui/featureshistogramwidget.ui
+

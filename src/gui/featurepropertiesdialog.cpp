@@ -21,27 +21,36 @@
  */
 
 #include "featurepropertiesdialog.h"
-#include "ui_featurepropertiesdialog.h"
+#include <windows.h>
 
-FeaturePropertiesDialog::FeaturePropertiesDialog(QWidget *parent) :
-  QDialog(parent),
-  ui(new Ui::FeaturePropertiesDialog)
+bool FeaturePropertiesDialog::create(HINSTANCE hInst, HWND parent)
 {
-  ui->setupUi(this);
+  const wchar_t CLASS_NAME[] = L"FeaturePropertiesDialog";
+  WNDCLASS wc = {};
+  wc.lpfnWndProc = FeaturePropertiesDialog::WndProc;
+  wc.hInstance = hInst;
+  wc.lpszClassName = CLASS_NAME;
+  RegisterClass(&wc);
+
+  hwnd = CreateWindowEx(0, CLASS_NAME, L"Properties",
+                        WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT, CW_USEDEFAULT,
+                        400, 300,
+                        parent, NULL, hInst, NULL);
+  return hwnd != NULL;
 }
 
-FeaturePropertiesDialog::~FeaturePropertiesDialog()
+void FeaturePropertiesDialog::show()
 {
-  delete ui;
+  ShowWindow(hwnd, SW_SHOW);
 }
 
-void FeaturePropertiesDialog::update(Symbol* symbol)
+LRESULT CALLBACK FeaturePropertiesDialog::WndProc(HWND h, UINT m, WPARAM w, LPARAM l)
 {
-  ui->detail->setText(symbol->longInfoText());
-  AttribData attrib = symbol->attrib();
-  QString attribText;
-  for (AttribData::iterator it = attrib.begin(); it != attrib.end(); ++it)  {
-    attribText += QString("%1\t= %2\n").arg(it.key()).arg(it.value());
+  switch(m) {
+  case WM_DESTROY:
+    PostQuitMessage(0);
+    return 0;
   }
-  ui->attrib->setText(attribText);
+  return DefWindowProc(h, m, w, l);
 }

@@ -23,28 +23,13 @@
 #ifndef SYMBOLCOUNT_H
 #define SYMBOLCOUNT_H
 
-#include <QDialog>
-#include <QTextEdit>
-#include <QVBoxLayout>
+#include <windows.h>
 
-namespace Ui {
-class symbolcount;
-}
-
-class symbolcount : public QDialog
-{
-    Q_OBJECT
-    
-public:
-    explicit symbolcount(QWidget *parent = 0);
-    void addSymbolCount(QTextEdit *output);
-    ~symbolcount();
-    
-private slots:
-    void on_pushButton_clicked();
-
-private:
-    Ui::symbolcount *ui;
+struct symbolcount {
+    HWND hwnd{};
+    static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+    bool create(HINSTANCE hInst, HWND parent = NULL);
+    void show();
 };
 
 #endif // SYMBOLCOUNT_H

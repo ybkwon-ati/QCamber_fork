@@ -22,22 +22,14 @@
 
 #ifndef __CLICKABLE_LABEL_H__
 #define __CLICKABLE_LABEL_H__
-#include <QLabel>
+#include <windows.h>
+#include <string>
 
-class ClickableLabel : public QLabel
-{
-  Q_OBJECT
-
-public:
-  ClickableLabel(QWidget* parent = 0);
-  ClickableLabel(const QString &text, QWidget *parent = 0);
-  void setColor(QString fg, QString bg);
-
-signals:
-  void clicked();
-
-protected:
-  virtual void mousePressEvent(QMouseEvent *ev);
+struct ClickableLabel {
+  HWND hwnd{};
+  void (*onClick)(ClickableLabel*);
+  void create(HWND parent, const std::wstring& text,
+              int x, int y, int w, int h, int id);
 };
 
 #endif // __CLICKABLE_LABEL_H__

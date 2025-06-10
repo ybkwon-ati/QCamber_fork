@@ -22,27 +22,14 @@
 
 #include "clickablelabel.h"
 
-#include <QMouseEvent>
+#include <windows.h>
 
-ClickableLabel::ClickableLabel(QWidget *parent)
-  :QLabel(parent)
+void ClickableLabel::create(HWND parent, const std::wstring& text,
+                           int x, int y, int w, int h, int id)
 {
-}
-
-ClickableLabel::ClickableLabel(const QString &text, QWidget *parent)
-  :QLabel(text, parent)
-{
-}
-
-void ClickableLabel::setColor(QString fg, QString bg)
-{
-  QString tmpl("QLabel { background-color: %1; color: %2; }");
-  setStyleSheet(tmpl.arg(fg).arg(bg));
-}
-
-void ClickableLabel::mousePressEvent(QMouseEvent *ev)
-{
-  if (ev->button() == Qt::LeftButton) {
-    emit clicked();
-  }
+  hwnd = CreateWindowExW(0, L"BUTTON", text.c_str(),
+                        WS_CHILD | WS_VISIBLE,
+                        x, y, w, h,
+                        parent, (HMENU)id,
+                        GetModuleHandle(NULL), NULL);
 }

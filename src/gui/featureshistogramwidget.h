@@ -23,28 +23,13 @@
 #ifndef FEATURESHISTOGRAMWIDGET_H
 #define FEATURESHISTOGRAMWIDGET_H
 
-#include <QWidget>
-#include <QStandardItemModel>
+#include <windows.h>
 
-namespace Ui {
-  class FeaturesHistogramWidget;
-}
-
-class FeaturesHistogramWidget : public QWidget
-{
-Q_OBJECT
-
-public:
-  explicit FeaturesHistogramWidget(QWidget *parent = 0);
-  ~FeaturesHistogramWidget();
-
-  void setTreeViewModel(QStandardItemModel* model);
-
-public slots:
-  void on_treeView_expanded(const QModelIndex& index);
-
-private:
-  Ui::FeaturesHistogramWidget *ui;
+struct FeaturesHistogramWidget {
+  HWND hwnd{};
+  static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+  bool create(HINSTANCE hInst, HWND parent = NULL);
+  void show();
 };
 
 #endif // FEATURESHISTOGRAMWIDGET_H

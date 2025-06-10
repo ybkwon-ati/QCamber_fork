@@ -23,7 +23,8 @@
 #include "structuredtextparser.h"
 
 #include <QDebug>
-#include <QSysInfo>
+#include <fstream>
+#include <string>
 
 #include "yyheader.h"
 #include "db.tab.h"
@@ -46,18 +47,11 @@ StructuredTextParser::~StructuredTextParser()
 
 StructuredTextDataStore* StructuredTextParser::parse(void)
 {
-#ifdef Q_OS_WIN
-  if (QSysInfo::WindowsVersion == QSysInfo::WV_XP) {
-    wchar_t buf[BUFSIZ];
-    memset(buf, 0, sizeof(wchar_t) * BUFSIZ);
-    m_fileName.toWCharArray(buf);
-
-    yyin = _wfopen(buf, (const wchar_t*)"r");
-  } else {
-    yyin = fopen(m_fileName.toLatin1(), "r");
-  }
+#ifdef _WIN32
+  std::wstring wpath = m_fileName.toStdWString();
+  yyin = _wfopen(wpath.c_str(), L"r");
 #else
-  yyin = fopen(m_fileName.toLatin1(), "r");
+  yyin = fopen(m_fileName.toStdString().c_str(), "r");
 #endif
 
   if (yyin == NULL) {

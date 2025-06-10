@@ -25,8 +25,9 @@
 #include <map>
 #include <string>
 
-#include <QtCore>
 #include <QtDebug>
+#include <QRegularExpression>
+#include <fstream>
 
 #include "structuredtextparser.h"
 #include "record.h"
@@ -42,8 +43,12 @@ FeaturesParser::~FeaturesParser()
 
 FeaturesDataStore* FeaturesParser::parse(void)
 {
-  QFile file(m_fileName);
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+#ifdef _WIN32
+  std::wifstream file(m_fileName.toStdWString());
+#else
+  std::ifstream file(m_fileName.toStdString());
+#endif
+  if (!file.is_open()) {
     qDebug("parse: can't open `%s' for reading", qPrintable(m_fileName));
     return NULL;
   }
@@ -79,9 +84,15 @@ FeaturesDataStore* FeaturesParser::parse(void)
 
   bool surface = false;
 
-  while (!file.atEnd()) {
-    QString line = file.readLine();
-    line.chop(1); // remove newline character
+#ifdef _WIN32
+  std::wstring wline;
+  while (std::getline(file, wline)) {
+    QString line = QString::fromStdWString(wline);
+#else
+  std::string sline;
+  while (std::getline(file, sline)) {
+    QString line = QString::fromStdString(sline);
+#endif
 
     if (line.startsWith("#") || line.length() == 0) { // comment
       continue;

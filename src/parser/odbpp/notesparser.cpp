@@ -22,7 +22,8 @@
 
 #include "notesparser.h"
 
-#include <QtCore>
+#include <fstream>
+#include <string>
 
 NotesParser::NotesParser(const QString& filename): Parser(filename)
 {
@@ -34,15 +35,26 @@ NotesParser::~NotesParser()
 
 NotesDataStore* NotesParser::parse(void)
 {
-  QFile file(m_fileName);
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+#ifdef _WIN32
+  std::wifstream file(m_fileName.toStdWString());
+#else
+  std::ifstream file(m_fileName.toStdString());
+#endif
+  if (!file.is_open()) {
     qDebug("parse: can't open `%s' for reading", qPrintable(m_fileName));
     return NULL;
   }
 
   NotesDataStore* ds = new NotesDataStore;
-  while (!file.atEnd()) {
-    QString line = file.readLine();
+#ifdef _WIN32
+  std::wstring wline;
+  while (std::getline(file, wline)) {
+    QString line = QString::fromStdWString(wline);
+#else
+  std::string sline;
+  while (std::getline(file, sline)) {
+    QString line = QString::fromStdString(sline);
+#endif
     ds->putRecord(line.split(","));
   }
 

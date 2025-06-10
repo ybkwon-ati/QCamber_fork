@@ -1,49 +1,34 @@
-/**
- * @file   symbolcount.cpp
- * @author Wei-Ning Huang (AZ) <aitjcize@gmail.com>
- *
- * Copyright (C) 2012 - 2014 Wei-Ning Huang (AZ) <aitjcize@gmail.com>
- * All Rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
-
 #include "symbolcount.h"
-#include "ui_symbolcount.h"
+#include <windows.h>
 
-symbolcount::symbolcount(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::symbolcount)
+bool symbolcount::create(HINSTANCE hInst, HWND parent)
 {
-    ui->setupUi(this);
+    const wchar_t CLASS_NAME[] = L"SymbolCount";
+    WNDCLASS wc = {};
+    wc.lpfnWndProc = symbolcount::WndProc;
+    wc.hInstance = hInst;
+    wc.lpszClassName = CLASS_NAME;
+    RegisterClass(&wc);
+
+    hwnd = CreateWindowEx(0, CLASS_NAME, L"Symbol Count",
+                          WS_OVERLAPPEDWINDOW,
+                          CW_USEDEFAULT, CW_USEDEFAULT,
+                          400, 300,
+                          parent, NULL, hInst, NULL);
+    return hwnd != NULL;
 }
 
-symbolcount::~symbolcount()
+void symbolcount::show()
 {
-    delete ui;
+    ShowWindow(hwnd, SW_SHOW);
 }
 
-void symbolcount::addSymbolCount(QTextEdit *output)
+LRESULT CALLBACK symbolcount::WndProc(HWND h, UINT m, WPARAM w, LPARAM l)
 {
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(output);
-    ui->scrollAreaWidgetContents->setLayout(layout);
-}
-
-void symbolcount::on_pushButton_clicked()
-{
-    this->close();
-    delete ui->scrollAreaWidgetContents->layout();
+    switch(m) {
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+    }
+    return DefWindowProc(h, m, w, l);
 }

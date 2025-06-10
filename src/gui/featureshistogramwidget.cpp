@@ -21,31 +21,36 @@
  */
 
 #include "featureshistogramwidget.h"
-#include "ui_featureshistogramwidget.h"
+#include <windows.h>
 
-#include <QtWidgets>
-
-FeaturesHistogramWidget::FeaturesHistogramWidget(QWidget *parent) :
-  QWidget(parent),
-  ui(new Ui::FeaturesHistogramWidget)
+bool FeaturesHistogramWidget::create(HINSTANCE hInst, HWND parent)
 {
-  ui->setupUi(this);
+  const wchar_t CLASS_NAME[] = L"FeaturesHistogramWidget";
+  WNDCLASS wc = {};
+  wc.lpfnWndProc = FeaturesHistogramWidget::WndProc;
+  wc.hInstance = hInst;
+  wc.lpszClassName = CLASS_NAME;
+  RegisterClass(&wc);
+
+  hwnd = CreateWindowEx(0, CLASS_NAME, L"Histogram",
+                        WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT, CW_USEDEFAULT,
+                        300, 200,
+                        parent, NULL, hInst, NULL);
+  return hwnd != NULL;
 }
 
-FeaturesHistogramWidget::~FeaturesHistogramWidget()
+void FeaturesHistogramWidget::show()
 {
-  delete ui;
+  ShowWindow(hwnd, SW_SHOW);
 }
 
-void FeaturesHistogramWidget::setTreeViewModel(QStandardItemModel* model)
+LRESULT CALLBACK FeaturesHistogramWidget::WndProc(HWND h, UINT m, WPARAM w, LPARAM l)
 {
-  ui->treeView->setModel(model);
-  ui->treeView->resizeColumnToContents(0);
-  ui->treeView->resizeColumnToContents(1);
-  ui->treeView->show();
-}
-
-void FeaturesHistogramWidget::on_treeView_expanded(const QModelIndex& index)
-{
-  ui->treeView->resizeColumnToContents(index.column());
+  switch(m) {
+  case WM_DESTROY:
+    PostQuitMessage(0);
+    return 0;
+  }
+  return DefWindowProc(h, m, w, l);
 }
